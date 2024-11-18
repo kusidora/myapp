@@ -1,17 +1,15 @@
 import "./App.css";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Side from "./components/ui/Side";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import TodoApp from "./components/Todo/TodoApp";
 
 const App: React.FC = () => {
   return (
     <>
-      <Side />
-      <BrowserRouter>
+      <Router>
         <Routes>
           <Route path="/todo" element={<TodoApp />} />
         </Routes>
-      </BrowserRouter>
+      </Router>
     </>
   );
 };

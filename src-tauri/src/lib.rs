@@ -10,32 +10,24 @@ fn add_to_database(id: i32, text: String) -> String {
     };
 
     // テーブルが存在しない場合に作成
-    let result = conn
-        .execute(
-            "CREATE TABLE IF NOT EXISTS users (
+    if let Err(err) = conn.execute(
+        "CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY,
             name TEXT NOT NULL,
             age INTEGER NOT NULL
         )",
-            [],
-        )
-        .map_err(|e| e.to_string());
-    let _ = match result {
-        Ok(_) => result,
-        Err(err) => return format!("エラーが発生={}", err),
-    };
+        [],
+    ) {
+        return format!("エラーが発生: {}", err);
+    }
 
     // データを挿入
-    let result = conn
-        .execute(
-            "INSERT INTO users (name, age) VALUES (?1, ?2)",
-            params![id, text],
-        )
-        .map_err(|e| e.to_string());
-    let _ = match result {
-        Ok(_) => result,
-        Err(err) => return format!("エラーが発生={}", err),
-    };
+    if let Err(err) = conn.execute(
+        "INSERT INTO users (name, age) VALUES (?1, ?2)",
+        params![id, text],
+    ) {
+        return format!("エラーが発生: {}", err);
+    }
 
     "データが正常に追加されました".to_string()
 }

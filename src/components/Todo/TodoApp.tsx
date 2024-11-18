@@ -17,32 +17,44 @@ const TodoApp: React.FC = () => {
       setEditId(null);
     } else {
       const id = Date.now();
-      setTodos([...todos, { id: id, text }]);
+      setTodos([...todos, { id, text, isChecked: false }]);
     }
   };
 
-  const deleteTask = (id: number) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
+  // チェックボックスの状態を切り替え
+  const toggleCheck = (id: number) => {
+    setTodos((prevTodos) =>
+      prevTodos.map((todo) =>
+        todo.id === id ? { ...todo, isChecked: !todo.isChecked } : todo
+      )
+    );
   };
 
+  // チェックされているタスクを削除する
+  const deleteTask = () => {
+    setTodos((prevTodos) => prevTodos.filter((todo) => !todo.isChecked));
+  };
+
+  // タスクを編集する
   const editTask = (id: number) => {
     setEditId(id);
   };
 
   return (
     <>
-      <div className="pl-1 sm:ml-64">
+      <div className="sm:ml-64">
         <TodoForm
           todos={todos}
           editId={editId}
           addOrEditTask={addOrEditTask}
           setEditId={setEditId}
+          deleteTask={deleteTask}
         />
         <TodoList
           todos={todos}
           editId={editId}
           editTask={editTask}
-          deleteTask={deleteTask}
+          toggleCheck={toggleCheck}
         />
       </div>
     </>
