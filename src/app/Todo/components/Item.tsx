@@ -1,5 +1,5 @@
 import React from "react";
-import { Todo } from "./types";
+import { Todo } from "../types";
 import { FaEdit } from "react-icons/fa";
 
 interface TodoItemProps {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Todo } from "./types";
+import { Todo } from "../types";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa";

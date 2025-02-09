@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import TodoForm from "./TodoForm";
+import TodoForm from "./components/Form";
 import { Todo } from "./types";
-import TodoList from "./TodoList";
+import TodoList from "./components/List";
 import { invoke } from "@tauri-apps/api/core";
 
 const TodoApp: React.FC = () => {
