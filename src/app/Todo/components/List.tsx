@@ -1,32 +1,21 @@
 import React from "react";
 import TodoItem from "./Item";
-import { Todo } from "../types";
+import { useTodos } from "../../context/TodoContext";
 
-interface TodoListProps {
-  todos: Todo[];
-  editTask: (id: number) => void;
-  editId: number | null;
-  toggleCheck: (id: number) => void;
-}
+const TodoList: React.FC = () => {
+  const { state, dispatch } = useTodos();
 
-const TodoList: React.FC<TodoListProps> = ({
-  todos,
-  editTask,
-  editId,
-  toggleCheck,
-}) => {
   return (
     <>
-      {/* {todos.length ? <h1 className="mb-10 text-center">ToDo一覧</h1> : ""} */}
       <div className="flex justify-center rounded min-h-60">
         <ul>
-          {todos.map((todo) => (
+          {state.todos.map((todo) => (
             <TodoItem
               key={todo.id}
               todo={todo}
-              editTask={editTask}
-              isEditing={todo.id === editId}
-              toggleCheck={toggleCheck}
+              isEditing={todo.id === state.editId}
+              editTask={() => dispatch({ type: "SET_EDIT_ID", id: todo.id })}
+              toggleCheck={() => dispatch({ type: "TOGGLE", id: todo.id })}
             />
           ))}
         </ul>

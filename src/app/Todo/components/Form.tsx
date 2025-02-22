@@ -1,70 +1,60 @@
 import React, { useState, useEffect } from "react";
-import { Todo } from "../types";
-import { FaRegTrashAlt } from "react-icons/fa";
-import { FaPlus } from "react-icons/fa";
-import { FaEdit } from "react-icons/fa";
+import { FaRegTrashAlt, FaPlus, FaEdit } from "react-icons/fa";
+import { useTodos } from "../../context/TodoContext";
 
-interface TodoFormProps {
-  addOrEditTask: (text: string) => void;
-  editId: number | null;
-  todos: Todo[];
-  setEditId: React.Dispatch<React.SetStateAction<number | null>>;
-  deleteTask: () => void;
-}
-
-const TodoForm: React.FC<TodoFormProps> = ({
-  addOrEditTask,
-  editId,
-  todos,
-  deleteTask,
-}) => {
+const Form: React.FC = () => {
+  const { state, dispatch, deleteCheckedTodos } = useTodos();
   const [text, setText] = useState("");
 
   useEffect(() => {
-    if (editId !== null) {
-      const currentTask = todos.find((todo) => todo.id === editId);
+    if (state.editId !== null) {
+      const currentTask = state.todos.find((todo) => todo.id === state.editId);
       if (currentTask) {
         setText(currentTask.text);
       }
     } else {
       setText("");
     }
-  }, [editId, todos]);
+  }, [state.editId, state.todos]);
 
   const handleSubmit = () => {
-    addOrEditTask(text);
+    if (!text.trim()) return;
+
+    if (state.editId !== null) {
+      dispatch({ type: "EDIT", id: state.editId, text });
+    } else {
+      dispatch({ type: "ADD", text });
+    }
     setText(""); // 入力欄クリア
   };
 
   return (
-    <>
-      <div className="flex justify-center h-40 rounded">
-        <div className="mt-8">
-          <input
-            className="rounded-md h-8 p-2 w-fit"
-            onChange={(e) => setText(e.target.value)}
-            type="text"
-            value={text}
-            placeholder="タスクを入力"
-          />
+    <div className="flex justify-center h-40 rounded">
+      <div className="mt-8">
+        <input
+          className="rounded-md h-8 p-2 w-fit"
+          onChange={(e) => setText(e.target.value)}
+          type="text"
+          value={text}
+          placeholder="タスクを入力"
+        />
 
-          <button
-            onClick={handleSubmit}
-            className="mt-4 ml-4 bg-blue-400 rounded-full text-white p-3 hover:translate-y-0.5 transform transition"
-          >
-            {editId !== null ? <FaEdit /> : <FaPlus />}
-          </button>
+        <button
+          onClick={handleSubmit}
+          className="mt-4 ml-4 bg-blue-400 rounded-full text-white p-3 hover:translate-y-0.5 transform transition"
+        >
+          {state.editId !== null ? <FaEdit /> : <FaPlus />}
+        </button>
 
-          <button
-            onClick={deleteTask}
-            className="mt-4 ml-4 bg-green-500 rounded-full text-white p-3 hover:translate-y-0.5 transform transition"
-          >
-            <FaRegTrashAlt />
-          </button>
-        </div>
+        <button
+          onClick={deleteCheckedTodos}
+          className="mt-4 ml-4 bg-green-500 rounded-full text-white p-3 hover:translate-y-0.5 transform transition"
+        >
+          <FaRegTrashAlt />
+        </button>
       </div>
-    </>
+    </div>
   );
 };
 
-export default TodoForm;
+export default Form;
