@@ -18,6 +18,9 @@ const Form: React.FC = () => {
         <input
           className="rounded-md h-8 p-2 w-fit"
           onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSubmit(); // ✅ Enterキーで確定
+          }}
           type="text"
           value={text}
           placeholder="タスクを入力"
