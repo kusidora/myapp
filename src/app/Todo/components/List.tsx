@@ -14,7 +14,9 @@ const TodoList: React.FC = () => {
               key={todo.id}
               todo={todo}
               isEditing={todo.id === state.editId}
-              editTask={() => dispatch({ type: "SET_EDIT_ID", id: todo.id })}
+              editTask={(id: number | null) =>
+                dispatch({ type: "SET_EDIT_ID", id })
+              }
               toggleCheck={() => dispatch({ type: "TOGGLE", id: todo.id })}
             />
           ))}

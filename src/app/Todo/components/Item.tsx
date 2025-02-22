@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Todo } from "../../types";
 import { invoke } from "@tauri-apps/api/core";
+import { useTodos } from "../../context/TodoContext";
 
 interface TodoItemProps {
   todo: Todo;
-  editTask: (id: number) => void;
+  editTask: (id: number | null) => void;
   isEditing: boolean;
   toggleCheck: (id: number) => void;
 }
@@ -16,11 +17,16 @@ const TodoItem: React.FC<TodoItemProps> = ({
   toggleCheck,
 }) => {
   const [editText, setEditText] = useState(todo.text);
+  const { dispatch, state } = useTodos();
+
+  useEffect(() => {
+    setEditText(todo.text); // ✅ todo.text が更新されたら editText も更新
+  }, [todo.text]);
 
   // 編集確定処理
   const handleEditSubmit = async () => {
     if (!editText.trim()) {
-      editTask(todo.id); // 空なら編集モード解除
+      editTask(null);
       return;
     }
 
@@ -29,14 +35,20 @@ const TodoItem: React.FC<TodoItemProps> = ({
         id: todo.id,
         text: editText,
       });
-
       console.log(`タスク ${todo.id} を更新しました`);
+
+      // ✅ Reducer の `SET_TODOS` を利用して、state を更新
+      dispatch({
+        type: "SET_TODOS",
+        todos: state.todos.map((t) =>
+          t.id === todo.id ? { ...t, text: editText } : t
+        ),
+      });
     } catch (error) {
       console.error("更新エラー:", error);
     }
 
-    editTask(todo.id); // ✅ 通常のテキスト表示に戻す
-    // console.log(isEditing);
+    editTask(null);
   };
 
   return (

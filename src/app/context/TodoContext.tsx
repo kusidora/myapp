@@ -9,7 +9,6 @@ interface State {
 
 type Action =
   | { type: "ADD"; text: string }
-  | { type: "EDIT"; id: number; text: string }
   | { type: "TOGGLE"; id: number }
   | { type: "DELETE" }
   | { type: "SET_EDIT_ID"; id: number | null }
@@ -25,15 +24,6 @@ const todoReducer = (state: State, action: Action): State => {
         isChecked: false,
       };
       return { ...state, todos: [...state.todos, newTodo] };
-
-    case "EDIT":
-      return {
-        ...state,
-        todos: state.todos.map((todo) =>
-          todo.id === action.id ? { ...todo, text: action.text } : todo
-        ),
-        editId: null,
-      };
 
     case "TOGGLE":
       return {
