@@ -14,7 +14,7 @@ const Side = () => {
             <li>
               <a
                 href="/todo"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                className="flex items-center p-2 !text-gray-900 rounded-lg dark:!text-white hover:bg-gray-300 dark:hover:bg-teal-800 group"
               >
                 <FaTasks />
                 <span className="ms-3">Todo</span>
@@ -23,7 +23,7 @@ const Side = () => {
             <li>
               <a
                 href="/timer"
-                className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                className="flex items-center p-2 !text-gray-900 rounded-lg dark:!text-white hover:bg-gray-300 dark:hover:bg-teal-800 group"
               >
                 <IoIosTimer />
                 <span className="flex-1 ms-3 whitespace-nowrap">Timer</span>
