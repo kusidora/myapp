@@ -12,29 +12,31 @@ const Form: React.FC = () => {
   };
 
   return (
-    <div className="flex justify-center h-40 rounded">
-      <div className="mt-8">
-        <input
-          className="rounded-md h-8 p-2 w-fit"
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleSubmit(); // ✅ Enterキーで確定
-          }}
-          type="text"
-          value={text}
-          placeholder="タスクを入力"
-        />
+    <div className="flex justify-center">
+      <div className="max-w-md w-full flex items-center h-30 ml-8 gap-4">
+        <div className="flex-1">
+          <input
+            className="rounded-md w-full p-2"
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSubmit();
+            }}
+            type="text"
+            value={text}
+            placeholder="タスクを入力"
+          />
+        </div>
 
         <button
           onClick={handleSubmit}
-          className="mt-4 ml-4 bg-blue-400 rounded-full text-white p-3 hover:translate-y-0.5 transform transition"
+          className="flex-none bg-blue-400 rounded-full text-white p-2 hover:translate-y-0.5 transition"
         >
           <FaPlus />
         </button>
 
         <button
           onClick={deleteCheckedTodos}
-          className="mt-4 ml-4 bg-green-500 rounded-full text-white p-3 hover:translate-y-0.5 transform transition"
+          className="flex-none bg-green-500 rounded-full text-white p-2 hover:translate-y-0.5 transition"
         >
           <FaRegTrashAlt />
         </button>
