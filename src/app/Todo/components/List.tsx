@@ -17,7 +17,6 @@ const TodoList: React.FC = () => {
               editTask={(id: number | null) =>
                 dispatch({ type: "SET_EDIT_ID", id })
               }
-              toggleCheck={() => dispatch({ type: "TOGGLE", id: todo.id })}
             />
           ))}
         </ul>

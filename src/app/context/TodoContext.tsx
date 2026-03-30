@@ -8,7 +8,7 @@ interface State {
 }
 
 type Action =
-  | { type: "ADD"; text: string }
+  | { type: "ADD"; todo: Todo }
   | { type: "TOGGLE"; id: number }
   | { type: "DELETE" }
   | { type: "SET_EDIT_ID"; id: number | null }
@@ -17,24 +17,18 @@ type Action =
 const todoReducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "ADD":
-      if (!action.text.trim()) return state;
-      const newTodo: Todo = {
-        id: Date.now(),
-        text: action.text,
-        isChecked: false,
-      };
-      return { ...state, todos: [...state.todos, newTodo] };
+      return { ...state, todos: [...state.todos, action.todo] };
 
     case "TOGGLE":
       return {
         ...state,
         todos: state.todos.map((todo) =>
-          todo.id === action.id ? { ...todo, isChecked: !todo.isChecked } : todo
+          todo.id === action.id ? { ...todo, isComplete: !todo.isComplete } : todo
         ),
       };
 
     case "DELETE":
-      return { ...state, todos: state.todos.filter((todo) => !todo.isChecked) };
+      return { ...state, todos: state.todos.filter((todo) => !todo.isComplete) };
 
     case "SET_EDIT_ID":
       return { ...state, editId: action.id };
@@ -49,10 +43,12 @@ const todoReducer = (state: State, action: Action): State => {
 
 const TodoContext = createContext<
   | {
-      state: State;
-      dispatch: React.Dispatch<Action>;
-      deleteCheckedTodos: () => void;
-    }
+    state: State;
+    dispatch: React.Dispatch<Action>;
+    deleteCheckedTodos: () => void;
+    addTodo: (text: string) => void;
+    toggleTodo: (id: number) => void;
+  }
   | undefined
 >(undefined);
 
@@ -77,41 +73,62 @@ export const TodoProvider: React.FC<{ children: React.ReactNode }> = ({
     fetchTodos();
   }, []);
 
-  // `ADD` された新規タスクを DB に追加
-  useEffect(() => {
-    const saveTodoToDB = async () => {
-      const lastTodo = state.todos[state.todos.length - 1];
-      if (lastTodo) {
-        try {
-          await invoke("add_to_database", {
-            id: lastTodo.id,
-            text: lastTodo.text,
-            isComplete: false,
-          });
-        } catch (error) {
-          console.error("Error saving todo to DB:", error);
-        }
-      }
-    };
-
-    saveTodoToDB();
-  }, [state.todos]);
-
   // **削除処理を関数にまとめ、手動で呼び出す**
   const deleteCheckedTodos = async () => {
-    const checkedTodos = state.todos.filter((todo) => todo.isChecked);
-    for (const todo of checkedTodos) {
-      try {
-        await invoke("delete_from_database", { id: todo.id });
-      } catch (error) {
-        console.error("削除エラー:", error);
-      }
+    const checkedTodos = state.todos.filter((todo) => todo.isComplete);
+    try {
+      await Promise.all(
+        checkedTodos.map((todo) =>
+          invoke("delete_from_database", { id: todo.id })
+        )
+      );
+    } catch (error) {
+      console.error("削除エラー:", error);
     }
     dispatch({ type: "DELETE" }); // ステートを更新
   };
 
+  const addTodo = async (text: string) => {
+    if (!text.trim()) return;
+    const newTodo: Todo = {
+      id: Date.now(),
+      text,
+      isComplete: false,
+    };
+
+    try {
+      await invoke("add_to_database", {
+        id: newTodo.id,
+        text: newTodo.text,
+        isComplete: false,
+      });
+
+      dispatch({ type: "ADD", todo: newTodo }); // state更新
+    } catch (error) {
+      console.error("追加エラー:", error);
+    }
+  };
+
+  const toggleTodo = async (id: number) => {
+    const target = state.todos.find((t) => t.id === id);
+    if (!target) return;
+
+    const newChecked = !target.isComplete;
+
+    try {
+      await invoke("update_database", {
+        id,
+        isComplete: newChecked,
+      });
+
+      dispatch({ type: "TOGGLE", id });
+    } catch (error) {
+      console.error("チェック更新エラー:", error);
+    }
+  };
+
   return (
-    <TodoContext.Provider value={{ state, dispatch, deleteCheckedTodos }}>
+    <TodoContext.Provider value={{ state, dispatch, deleteCheckedTodos, addTodo, toggleTodo }}>
       {children}
     </TodoContext.Provider>
   );

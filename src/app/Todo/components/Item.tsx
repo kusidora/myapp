@@ -7,17 +7,15 @@ interface TodoItemProps {
   todo: Todo;
   editTask: (id: number | null) => void;
   isEditing: boolean;
-  toggleCheck: (id: number) => void;
 }
 
 const TodoItem: React.FC<TodoItemProps> = ({
   todo,
   editTask,
   isEditing,
-  toggleCheck,
 }) => {
   const [editText, setEditText] = useState(todo.text);
-  const { dispatch, state } = useTodos();
+  const { dispatch, state, toggleTodo } = useTodos();
 
   useEffect(() => {
     setEditText(todo.text); // ✅ todo.text が更新されたら editText も更新
@@ -35,7 +33,7 @@ const TodoItem: React.FC<TodoItemProps> = ({
         id: todo.id,
         text: editText,
       });
-      console.log(`タスク ${todo.id} を更新しました`);
+      console.log(`タスク ${todo.id},${todo.isComplete} を更新しました`);
 
       // ✅ Reducer の `SET_TODOS` を利用して、state を更新
       dispatch({
@@ -53,16 +51,15 @@ const TodoItem: React.FC<TodoItemProps> = ({
 
   return (
     <li
-      className={`${
-        isEditing ? "bg-blue-900 rounded-xl p-3" : "p-3"
-      } flex items-center`}
+      className={`${isEditing ? "bg-blue-900 rounded-xl p-3" : "p-3"
+        } flex items-center`}
     >
       <div className="flex items-center me-4">
         <input
           id={`checkbox-${todo.id}`}
           type="checkbox"
-          checked={todo.isChecked}
-          onChange={() => toggleCheck(todo.id)}
+          checked={todo.isComplete}
+          onChange={() => toggleTodo(todo.id)}
           className="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded focus:ring-teal-500 dark:focus:ring-teal-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
         />
         {isEditing ? (
@@ -75,6 +72,7 @@ const TodoItem: React.FC<TodoItemProps> = ({
             onKeyDown={(e) => {
               if (e.key === "Enter") handleEditSubmit(); // ✅ Enterキーで確定
             }}
+            checked={todo.isComplete}
             className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300 w-64 ml-4 truncate bg-gray-100 dark:bg-gray-700 p-1 rounded"
             autoFocus
           />
@@ -84,7 +82,7 @@ const TodoItem: React.FC<TodoItemProps> = ({
             onClick={() => editTask(todo.id)}
             className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300 w-64 ml-4 truncate"
           >
-            {todo.isChecked ? <s>{todo.text}</s> : todo.text}
+            {todo.isComplete ? <s>{todo.text}</s> : todo.text}
           </label>
         )}
       </div>

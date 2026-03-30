@@ -3,12 +3,11 @@ import { FaRegTrashAlt, FaPlus } from "react-icons/fa";
 import { useTodos } from "../../context/TodoContext";
 
 const Form: React.FC = () => {
-  const { dispatch, deleteCheckedTodos } = useTodos();
+  const { deleteCheckedTodos, addTodo } = useTodos();
   const [text, setText] = useState("");
 
   const handleSubmit = () => {
-    if (!text.trim()) return;
-    dispatch({ type: "ADD", text });
+    addTodo(text)
     setText(""); // 入力欄クリア
   };
 

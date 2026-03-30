@@ -2,6 +2,8 @@ use rusqlite::{params, Connection};
 use serde::Serialize;
 
 #[derive(Serialize)] // フロントエンドに JSON 形式でデータを渡すために必要
+#[derive(Debug)]
+#[serde(rename_all = "camelCase")]
 struct Todo {
     id: i64,
     text: String,
@@ -69,7 +71,7 @@ fn get_to_database() -> Result<Vec<Todo>, String> {
             Err(err) => return Err(format!("データ変換エラー: {}", err)),
         }
     }
-
+    dbg!("{:?}", &todos);
     Ok(todos)
 }
 
@@ -95,22 +97,35 @@ fn update_database(id: i64, text: Option<String>, is_complete: Option<bool>) -> 
         Err(err) => return format!("データベース接続エラー: {}", err),
     };
 
+    let mut query = String::from("UPDATE todos SET ");
+    let mut params_vec: Vec<Box<dyn rusqlite::ToSql>> = Vec::new();
+    let mut updates = Vec::new();
+
     if let Some(text) = text {
-        if let Err(err) = conn.execute(
-            "UPDATE todos SET text = ?1 WHERE id = ?2",
-            params![text, id],
-        ) {
-            return format!("テキスト更新エラー: {}", err);
-        }
+        updates.push("text = ?");
+        params_vec.push(Box::new(text));
     }
 
     if let Some(is_complete) = is_complete {
-        if let Err(err) = conn.execute(
-            "UPDATE todos SET is_complete = ?1 WHERE id = ?2",
-            params![is_complete, id],
-        ) {
-            return format!("完了状態更新エラー: {}", err);
-        }
+        updates.push("is_complete = ?");
+        params_vec.push(Box::new(is_complete));
+        dbg!("{}", is_complete);
+    }
+
+    // 更新対象がなければ終了
+    if updates.is_empty() {
+        return "更新する項目がありません".to_string();
+    }
+
+    query.push_str(&updates.join(", "));
+    query.push_str(" WHERE id = ?");
+    dbg!("{:?}", &query);
+    params_vec.push(Box::new(id));
+
+    let params_refs: Vec<&dyn rusqlite::ToSql> = params_vec.iter().map(|p| p.as_ref()).collect();
+
+    if let Err(err) = conn.execute(&query, params_refs.as_slice()) {
+        return format!("更新エラー: {}", err);
     }
 
     println!("タスク (ID: {}) が更新されました", id);
